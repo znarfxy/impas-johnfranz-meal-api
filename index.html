@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meal API</title>
+</head>
+<body>
+  <h1>Campus Meals</h1>
+
+  <form id="search-form">
+    <label for="search">Search food:</label>
+    <input id="search" name="search" type="text" placeholder="Enter food name">
+    <button type="submit">Search</button>
+    <button id="show-all" type="button">Show all</button>
+  </form>
+
+  <table border="1">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Food</th>
+        <th>Price</th>
+      </tr>
+    </thead>
+    <tbody id="meal-list"></tbody>
+  </table>
+
+  <p id="message"></p>
+
+  <script>
+    const searchForm = document.getElementById('search-form');
+    const searchInput = document.getElementById('search');
+    const showAllButton = document.getElementById('show-all');
+    const mealList = document.getElementById('meal-list');
+    const message = document.getElementById('message');
+
+    async function loadMeals(search = '') {
+      const query = search ? `?search=${encodeURIComponent(search)}` : '';
+      const response = await fetch(`/api/meals${query}`);
+      const meals = await response.json();
+
+      mealList.innerHTML = meals.map((meal) => `
+        <tr>
+          <td>${meal.id}</td>
+          <td>${meal.food}</td>
+          <td>${meal.price}</td>
+        </tr>
+      `).join('');
+      message.textContent = meals.length ? '' : 'No food found.';
+    }
+
+    searchForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      loadMeals(searchInput.value);
+    });
+
+    showAllButton.addEventListener('click', () => {
+      searchInput.value = '';
+      loadMeals();
+    });
+
+    loadMeals();
+  </script>
+</body>
+</html>
